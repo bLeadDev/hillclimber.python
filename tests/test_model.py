@@ -56,9 +56,8 @@ bbaa
 caac"""
     # WHEN creating a map from the string
     world = Map.from_string(map_string)
-    # THEN the map should contain a field with elevation 0 (=a) at (x=0, y=0)
+    # THEN the map should contain all fields with with the given elevation
     assert world.get_field(0, 0) == Field(x=0, y=0, elevation=0)
-    # AND the map should contain a field with elevation 1 (=b) at (x=0, y=1)
     assert world.get_field(0, 1) == Field(x=0, y=1, elevation=1)
     assert world.get_field(0, 2) == Field(x=0, y=2, elevation=2)
     assert world.get_field(1, 0) == Field(x=1, y=0, elevation=0)

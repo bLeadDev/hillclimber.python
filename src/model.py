@@ -48,13 +48,25 @@ class Map:
     @staticmethod
     def from_string(map_string: str):
         # Static method to create a Map object from a multiline string
+        start = None
+        end = None
         map_to_return = Map()
         lines = map_string.splitlines()
         for idx_y, line in enumerate(lines):
             for idx_x, ch in enumerate(line):
+                #search for start and end. As specified, start has elevation of a and end z
+                if ch == 'S':
+                    start = (idx_x, idx_y)
+                    ch = 'a'
+                elif ch == 'E':
+                    end = (idx_x, idx_y)
+                    ch = 'z'
                 map_to_return.add_field(x=idx_x, y=idx_y, elevation=ord(ch) - ord('a'))
-                print(f"x: {idx_x}, y: {idx_y}, ch: {ch}")
-
+        if end is not None:
+            map_to_return.set_end(end)
+        if start is not None:
+            map_to_return.set_start(start)
+        
         return map_to_return
 
 class Walker:

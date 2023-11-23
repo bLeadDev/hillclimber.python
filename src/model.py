@@ -46,9 +46,16 @@ class Map:
         pass
 
     @staticmethod
-    def from_string(map_string):
+    def from_string(map_string: str):
         # Static method to create a Map object from a multiline string
-        pass
+        map_to_return = Map()
+        lines = map_string.splitlines()
+        for idx_y, line in enumerate(lines):
+            for idx_x, ch in enumerate(line):
+                map_to_return.add_field(x=idx_x, y=idx_y, elevation=ord(ch) - ord('a'))
+                print(f"x: {idx_x}, y: {idx_y}, ch: {ch}")
+
+        return map_to_return
 
 class Walker:
     # Walker class represents a walker with a position on the map

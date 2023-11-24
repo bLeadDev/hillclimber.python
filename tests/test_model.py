@@ -60,7 +60,7 @@ caac"""
     assert world.get_field(0, 0) == Field(x=0, y=0, elevation=0)
     assert world.get_field(0, 1) == Field(x=0, y=1, elevation=1)
     assert world.get_field(0, 2) == Field(x=0, y=2, elevation=2)
-    assert world.get_field(1, 0) == Field(x=1, y=0, elevation=0)
+    assert world.get_field(1, 0) == Field(x=1, y=0, elevation=1)
     assert world.get_field(1, 1) == Field(x=1, y=1, elevation=1)
     assert world.get_field(1, 2) == Field(x=1, y=2, elevation=0)
     assert world.get_field(2, 0) == Field(x=2, y=0, elevation=1)
@@ -69,3 +69,36 @@ caac"""
     assert world.get_field(3, 0) == Field(x=3, y=0, elevation=2)
     assert world.get_field(3, 1) == Field(x=3, y=1, elevation=0)
     assert world.get_field(3, 2) == Field(x=3, y=2, elevation=2)
+
+def test_create_a_map_with_start_and_end():
+    # GIVEN a multiline string with start and end
+    map_string = """\
+Sabqponm
+abcryxxl
+accszExk
+acctuvwj
+abdefghi"""
+    # WHEN creating a map from the string
+    world = Map.from_string(map_string)
+    # THEN the map should have the right starting and ending point
+    assert world.start  == Field(x=0, y=0, elevation=0)
+    assert world.end    == Field(x=5, y=2, elevation=25)
+
+def test_get_the_right_and_climbable_neightbors():
+    # GIVEN a multiline string with start and end
+    map_string = """\
+Sabqponm
+abcryxxl
+accszExk
+acctuvwj
+abdefghi"""
+    world = Map.from_string(map_string)
+    # WHEN trying to get the neighboring fields
+    neighbor = world.get_neighbours(Field(x=2, y=2, elevation=2))
+    # THEN the map should return the right neighbors (N, S, W, E)
+    assert neighbor == (
+        Field(x=2, y=1, elevation=2), #north
+        Field(x=2, y=3, elevation=2), #south
+        Field(x=1, y=2, elevation=2), #west
+        Field(x=3, y=2, elevation=18) #east
+    )

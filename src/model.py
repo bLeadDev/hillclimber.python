@@ -43,6 +43,7 @@ class Map:
     def get_neighbours(self, field):
         # Get a list of available neighbouring fields (N, S, W, E) of the given field
         # if they are not on the map, they are not available
+        self.fields()
         pass
 
     @staticmethod
@@ -63,9 +64,9 @@ class Map:
                     ch = 'z'
                 map_to_return.add_field(x=idx_x, y=idx_y, elevation=ord(ch) - ord('a'))
         if end is not None:
-            map_to_return.set_end(end)
+            map_to_return.set_end(end[0], end[1])
         if start is not None:
-            map_to_return.set_start(start)
+            map_to_return.set_start(start[0], start[1])
         
         return map_to_return
 

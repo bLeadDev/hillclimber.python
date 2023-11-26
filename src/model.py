@@ -1,3 +1,5 @@
+from visu import plot_path
+
 def get_elevation_from_char(elevation_char):
     if elevation_char == 'S':
         return 0
@@ -5,8 +7,6 @@ def get_elevation_from_char(elevation_char):
         return 25
     else:
         return ord(elevation_char) - ord('a')
-
-
 
 class Field:
     # Field class represents a single field on the map
@@ -56,7 +56,7 @@ class Map:
         # Get a list of available neighbouring fields (N, S, W, E) of the given field
         # if they are not on the map, they are not available
 
-        if field.x > self.width or field.y > self.height:
+        if field.x > self.width - 1 or field.y > self.height - 1:
             return None #outside of range
         
         neighbouring_fields = (None, None, None, None)
@@ -69,7 +69,7 @@ class Map:
                 neighbouring_fields[3]
             )
 
-        if field.y != self.height: #add south
+        if field.y != self.height - 1: #add south
             neighbouring_fields = (
                 neighbouring_fields[0],
                 self.fields[(field.x, field.y + 1)],
@@ -84,7 +84,7 @@ class Map:
                 self.fields[(field.x - 1, field.y)],
                 neighbouring_fields[3]
             )
-        if field.x != self.width:          #add west
+        if field.x != self.width - 1:          #add west
             neighbouring_fields = (
                 neighbouring_fields[0],
                 neighbouring_fields[1],
@@ -116,8 +116,8 @@ class Map:
             map_to_return.set_end(end[0], end[1])
         if start is not None:
             map_to_return.set_start(start[0], start[1])
-        map_to_return.width = idx_x
-        map_to_return.height = idx_y
+        map_to_return.width = idx_x + 1
+        map_to_return.height = idx_y + 1
         return map_to_return
 
 class Walker:
@@ -150,26 +150,45 @@ class Path:
         if self.fields:
             self.fields.pop()
 
-    def get_lenth(self):
+    def get_length(self):
         return len(self.fields)
 
 
 
 class ShortestPathFinder:
+    pathes = []
 
     @staticmethod
     def solve(map: Map, path: Path, walker: Walker):
         if walker.position == map.end:
             return path
+        
         neighbors = map.get_neighbours(walker.position)
-        for neighbor in neighbors:
-            if neighbor is not None:
-                if walker.can_climb(neighbor) and not (neighbor in path.fields): #climbable and not 
-                    path.add_step(neighbor)
-                    walker.position = neighbor    
-                    return ShortestPathFinder.solve(map, path, walker)
+        # Initialize shortest path variable
+        current_path = None
+        shortest_path = None
 
-                            
+        for neighbor in neighbors:
+            if neighbor is not None and not (neighbor in path.fields) and walker.can_climb(neighbor):
+                walker.position = neighbor
+                path.add_step(neighbor)
+                current_path = ShortestPathFinder.solve(map, path, walker)
+                path.remove_last_step()
+
+            if current_path is not None:
+                        
+                ShortestPathFinder.pathes.append(current_path)    
+                
+                # if (shortest_path is None or current_path.get_length() < shortest_path.get_length()):
+                #     shortest_path = current_path
+                #     print("New shortest path: {}", shortest_path.get_length())
+                #     print(f"h:{map.height}, w: {map.width}")
+                #     #plot_path(shortest_path.fields, map.height, map.width)
+
+
+
+# Rest of your code remains unchanged
+
 
 map_string = """\
 Sabqponm
@@ -183,8 +202,12 @@ m = Map.from_string(map_string=map_string)
 
 
 p = Path()
-shortest = ShortestPathFinder.solve(m, p, w)
-print(shortest)
+ShortestPathFinder.solve(m, p, w)
+for path in ShortestPathFinder.pathes:
+    print(f"{path.fields}")
+    if path is  not None:
+        if (m.end in path.fields) :
+            plot_path(path.fields, map.height, map.width)
 
 
 multilinestring = """\

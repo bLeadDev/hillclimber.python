@@ -152,14 +152,25 @@ class Path:
 
     def get_length(self):
         return len(self.fields)
+    
+    def get_end(self):
+        return self.fields[len(self.fields) - 1]
+    
+    def field_visited(self, field):
+        for f in self.fields:
+            if f == field:
+                return True
+        return False
 
 
 
 class ShortestPathFinder:
-    
+    found_paths = []
+
     @staticmethod
     def solve(map: Map, path: Path, walker: Walker):
         if walker.position == map.end:
+            path.add_step(walker.position)
             return path
         
         neighbors = map.get_neighbours(walker.position)
@@ -168,18 +179,23 @@ class ShortestPathFinder:
         shortest_path = None
 
         for neighbor in neighbors:
-            if neighbor is not None and not (neighbor in path.fields) and walker.can_climb(neighbor):
+            if neighbor is not None and not path.field_visited(neighbor) and walker.can_climb(neighbor):
                 walker.position = neighbor
                 path.add_step(neighbor)
                 current_path = ShortestPathFinder.solve(map, path, walker)
                 path.remove_last_step()
 
-            if current_path is not None:        
-                if (shortest_path is None or current_path.get_length() < shortest_path.get_length()):
-                    shortest_path = current_path
-                    print("New shortest path: {}", shortest_path.get_length())
-                    print(f"h:{map.height}, w: {map.width}")
-                    plot_path(shortest_path.fields, map.height, map.width)
+            if current_path is not None:
+                if map.end == current_path.get_end():
+                    print(f"map end is: {map.end}\ncurrent end{current_path.get_end()}")
+                    print(f"current path: {current_path.fields}")
+                    ShortestPathFinder.found_paths.append(current_path)
+                    plot_path(current_path.fields, map.height, map.width)
+                    # if (shortest_path is None or current_path.get_length() < shortest_path.get_length()):
+                    #     shortest_path = current_path
+                    #     print("New shortest path: {}", shortest_path.get_length())
+                    #     print(f"h:{map.height}, w: {map.width}")
+                    #     plot_path(shortest_path.fields, map.height, map.width)
         
         return  shortest_path
 
@@ -199,8 +215,10 @@ m = Map.from_string(map_string=map_string)
 
 
 p = Path()
+p.add_step(w.position) #should be done in the class/method
 shortest = ShortestPathFinder.solve(m, p, w)
-print(shortest.get_length())
+
+
 
 
 multilinestring = """\

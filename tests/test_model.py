@@ -1,6 +1,18 @@
 
 import pytest
-from src.model import Map, Field
+from src.model import Map, Field, Walker, get_elevation_from_char
+
+def test_create_a_walker_who_is_able_to_climb_one_up():
+    walker = Walker(Field(x=0, y=0, elevation=0))
+    assert(walker.can_climb(Field(x=1, y=0, elevation=1)) == True)
+
+def test_create_a_walker_who_is_able_to_climb_down():
+    walker = Walker(Field(x=0, y=0, elevation=15))
+    assert(walker.can_climb(Field(x=1, y=0, elevation=1)) == True)
+
+def test_create_a_walker_who_is_not_able_to_climb_up_more_than_one():
+    walker = Walker(Field(x=0, y=0, elevation=0))
+    assert(walker.can_climb(Field(x=1, y=0, elevation=2)) == False)
 
 def test_add_a_field_to_a_map():
     # GIVEN an empty map
@@ -69,6 +81,7 @@ caac"""
     assert world.get_field(3, 0) == Field(x=3, y=0, elevation=2)
     assert world.get_field(3, 1) == Field(x=3, y=1, elevation=0)
     assert world.get_field(3, 2) == Field(x=3, y=2, elevation=2)
+
 
 def test_create_a_map_with_start_and_end():
     # GIVEN a multiline string with start and end
@@ -169,3 +182,4 @@ abdefghi"""
     neighbor = world.get_neighbours(Field(x=0, y=5, elevation=0))
     # THEN the map should return the right neighbors (N, S, W, E), which is None
     assert neighbor == None
+

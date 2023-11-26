@@ -27,8 +27,8 @@ class Map:
     def __init__(self):
         # Initialize an empty list of fields
         self.fields = {}
-        self.x_size = 0
-        self.y_size = 0
+        self.width = 0
+        self.height = 0
 
     def set_start(self, x, y):
         # Set the start field at given x, y coordinates
@@ -54,7 +54,7 @@ class Map:
         # Get a list of available neighbouring fields (N, S, W, E) of the given field
         # if they are not on the map, they are not available
 
-        if field.x > self.x_size or field.y > self.y_size:
+        if field.x > self.width or field.y > self.height:
             return None #outside of range
         
         neighbouring_fields = (None, None, None, None)
@@ -67,7 +67,7 @@ class Map:
                 neighbouring_fields[3]
             )
 
-        if field.y != self.y_size: #add south
+        if field.y != self.height: #add south
             neighbouring_fields = (
                 neighbouring_fields[0],
                 self.fields[(field.x, field.y + 1)],
@@ -82,7 +82,7 @@ class Map:
                 self.fields[(field.x - 1, field.y)],
                 neighbouring_fields[3]
             )
-        if field.x != self.x_size:          #add west
+        if field.x != self.width:          #add west
             neighbouring_fields = (
                 neighbouring_fields[0],
                 neighbouring_fields[1],
@@ -109,14 +109,13 @@ class Map:
                 elif ch == 'E':
                     end = (idx_x, idx_y)
                     ch = 'z'
-                map_to_return.add_field(x=idx_x, y=idx_y, elevation=ord(ch) - ord('a'))
+                map_to_return.add_field(x=idx_x, y=idx_y, elevation=get_elevation_from_char(ch))
         if end is not None:
             map_to_return.set_end(end[0], end[1])
         if start is not None:
             map_to_return.set_start(start[0], start[1])
-        map_to_return.x_size = idx_x
-        map_to_return.y_size = idx_y
-        print(f"Size is x:{idx_x} y: {idx_y}")
+        map_to_return.width = idx_x
+        map_to_return.height = idx_y
         return map_to_return
 
 class Walker:
@@ -124,6 +123,14 @@ class Walker:
     def __init__(self, position):
         # Initialize the walker's position
         self.position = position
+
+    def can_climb(self, field):
+        if self.position.elevation + 1 == field.elevation:
+            return True
+        elif self.position.elevation >= field.elevation:
+            return True
+        return False
+        
 
 
 class Path:
@@ -141,6 +148,8 @@ class Path:
         if self.fields:
             self.fields.pop()
 
+    def get_lenth(self):
+        return len(self.fields)
 
 multilinestring = """\
 abc

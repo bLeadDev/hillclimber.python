@@ -6,6 +6,8 @@ def get_elevation_from_char(elevation_char):
     else:
         return ord(elevation_char) - ord('a')
 
+
+
 class Field:
     # Field class represents a single field on the map
     def __init__(self, x, y, elevation):
@@ -120,7 +122,7 @@ class Map:
 
 class Walker:
     # Walker class represents a walker with a position on the map
-    def __init__(self, position):
+    def __init__(self, position: Field):
         # Initialize the walker's position
         self.position = position
 
@@ -150,6 +152,40 @@ class Path:
 
     def get_lenth(self):
         return len(self.fields)
+
+
+
+class ShortestPathFinder:
+
+    @staticmethod
+    def solve(map: Map, path: Path, walker: Walker):
+        if walker.position == map.end:
+            return path
+        neighbors = map.get_neighbours(walker.position)
+        for neighbor in neighbors:
+            if neighbor is not None:
+                if walker.can_climb(neighbor) and not (neighbor in path.fields): #climbable and not 
+                    path.add_step(neighbor)
+                    walker.position = neighbor    
+                    return ShortestPathFinder.solve(map, path, walker)
+
+                            
+
+map_string = """\
+Sabqponm
+abcryxxl
+accszExk
+acctuvwj
+abdefghi"""
+
+w = Walker(Field(x=0, y=0,elevation=0))
+m = Map.from_string(map_string=map_string)
+
+
+p = Path()
+shortest = ShortestPathFinder.solve(m, p, w)
+print(shortest)
+
 
 multilinestring = """\
 abc

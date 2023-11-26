@@ -3,15 +3,24 @@ import pytest
 from src.model import Map, Field, Walker, get_elevation_from_char
 
 def test_create_a_walker_who_is_able_to_climb_one_up():
+    # GIVEN a walker at random position, elevation 0
     walker = Walker(Field(x=0, y=0, elevation=0))
+    # WHEN trying to climb a field with elevation 1
+    # THEN the climber should be able to climb it
     assert(walker.can_climb(Field(x=1, y=0, elevation=1)) == True)
 
 def test_create_a_walker_who_is_able_to_climb_down():
+    # GIVEN a walker at random position, elevation 15
     walker = Walker(Field(x=0, y=0, elevation=15))
+    # WHEN trying to climb a field with elevation 1
+    # THEN the climber should be able to climb down to it
     assert(walker.can_climb(Field(x=1, y=0, elevation=1)) == True)
 
 def test_create_a_walker_who_is_not_able_to_climb_up_more_than_one():
+    # GIVEN a walker at random position, elevation 0
     walker = Walker(Field(x=0, y=0, elevation=0))
+    # WHEN trying to climb a field with elevation 2
+    # THEN the climber should NOT be able to climb up
     assert(walker.can_climb(Field(x=1, y=0, elevation=2)) == False)
 
 def test_add_a_field_to_a_map():

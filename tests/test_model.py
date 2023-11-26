@@ -2,6 +2,14 @@
 import pytest
 from src.model import Map, Field
 
+def get_elevation_from_char(elevation_char):
+    if elevation_char == 'S':
+        return 0
+    elif elevation_char == 'E':
+        return 25
+    else:
+        return ord(elevation_char) - ord('a')
+
 def test_add_a_field_to_a_map():
     # GIVEN an empty map
     world = Map()
@@ -80,11 +88,11 @@ acctuvwj
 abdefghi"""
     # WHEN creating a map from the string
     world = Map.from_string(map_string)
-    # THEN the map should have the right starting and ending point
+    # THEN the map should have the right starting and ending point, with elevation 0 at S and 25 at E
     assert world.start  == Field(x=0, y=0, elevation=0)
     assert world.end    == Field(x=5, y=2, elevation=25)
 
-def test_get_the_right_and_climbable_neightbors():
+def test_get_neightbors_in_middle():
     # GIVEN a multiline string with start and end
     map_string = """\
 Sabqponm
@@ -102,3 +110,70 @@ abdefghi"""
         Field(x=1, y=2, elevation=2), #west
         Field(x=3, y=2, elevation=18) #east
     )
+
+def test_get_neightbors_at_edge_x0_y0():
+    # GIVEN a multiline string with start and end
+    map_string = """\
+Sabqponm
+abcryxxl
+accszExk
+acctuvwj
+abdefghi"""
+    world = Map.from_string(map_string)
+    # WHEN trying to get the neighboring fields
+    neighbor = world.get_neighbours(Field(x=0, y=0, elevation=0))
+    # THEN the map should return the right neighbors (N, S, W, E)
+    assert neighbor == (
+        None,
+        Field(x=0, y=1, elevation=0), #south
+        None,
+        Field(x=1, y=0, elevation=0), #east
+        )
+
+def test_get_neightbors_at_edge_x_max_y_max():
+    # GIVEN a multiline string with start and end
+    map_string = """\
+Sabqponm
+abcryxxl
+accszExk
+acctuvwj
+abdefghi"""
+    world = Map.from_string(map_string)
+    # WHEN trying to get the neighboring fields
+    neighbor = world.get_neighbours(Field(x=7, y=4, elevation=get_elevation_from_char('i')))
+    # THEN the map should return the right neighbors (N, S, W, E)
+    print(f"neighbor at edge max {neighbor}")
+    assert neighbor == (
+        Field(x=7, y=3, elevation=get_elevation_from_char('j')), #north
+        None,
+        Field(x=6, y=4, elevation=get_elevation_from_char('h')), #west
+        None,
+    )
+
+def test_get_neightbors_field_out_of_range_x():
+    # GIVEN a multiline string with start and end
+    map_string = """\
+Sabqponm
+abcryxxl
+accszExk
+acctuvwj
+abdefghi"""
+    world = Map.from_string(map_string)
+    # WHEN trying to get the neighboring fields of outside the map, x overrun
+    neighbor = world.get_neighbours(Field(x=8, y=0, elevation=0))
+    # THEN the map should return the right neighbors (N, S, W, E), which is None
+    assert neighbor == None
+    
+def test_get_neightbors_field_out_of_range_y():
+    # GIVEN a multiline string with start and end
+    map_string = """\
+Sabqponm
+abcryxxl
+accszExk
+acctuvwj
+abdefghi"""
+    world = Map.from_string(map_string)
+    # WHEN trying to get the neighboring fields of outside the map, y overrun
+    neighbor = world.get_neighbours(Field(x=0, y=5, elevation=0))
+    # THEN the map should return the right neighbors (N, S, W, E), which is None
+    assert neighbor == None

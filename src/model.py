@@ -19,6 +19,8 @@ class Map:
     def __init__(self):
         # Initialize an empty list of fields
         self.fields = {}
+        self.x_size = 0
+        self.y_size = 0
 
     def set_start(self, x, y):
         # Set the start field at given x, y coordinates
@@ -43,8 +45,45 @@ class Map:
     def get_neighbours(self, field):
         # Get a list of available neighbouring fields (N, S, W, E) of the given field
         # if they are not on the map, they are not available
-        self.fields()
-        pass
+
+        if field.x > self.x_size or field.y > self.y_size:
+            return None #outside of range
+        
+        neighbouring_fields = (None, None, None, None)
+
+        if field.y != 0:          #add north
+            neighbouring_fields = (
+                self.fields[(field.x, field.y - 1)],
+                neighbouring_fields[1],
+                neighbouring_fields[2],
+                neighbouring_fields[3]
+            )
+
+        if field.y != self.y_size: #add south
+            neighbouring_fields = (
+                neighbouring_fields[0],
+                self.fields[(field.x, field.y + 1)],
+                neighbouring_fields[2],
+                neighbouring_fields[3]
+            )
+
+        if field.x != 0:          #add east
+            neighbouring_fields = (
+                neighbouring_fields[0],
+                neighbouring_fields[1],
+                self.fields[(field.x - 1, field.y)],
+                neighbouring_fields[3]
+            )
+        if field.x != self.x_size:          #add west
+            neighbouring_fields = (
+                neighbouring_fields[0],
+                neighbouring_fields[1],
+                neighbouring_fields[2],
+                self.fields[(field.x + 1, field.y)],
+            )
+ 
+        return neighbouring_fields
+        
 
     @staticmethod
     def from_string(map_string: str):
@@ -67,7 +106,9 @@ class Map:
             map_to_return.set_end(end[0], end[1])
         if start is not None:
             map_to_return.set_start(start[0], start[1])
-        
+        map_to_return.x_size = idx_x
+        map_to_return.y_size = idx_y
+        print(f"Size is x:{idx_x} y: {idx_y}")
         return map_to_return
 
 class Walker:

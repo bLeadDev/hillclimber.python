@@ -1,3 +1,11 @@
+def get_elevation_from_char(elevation_char):
+    if elevation_char == 'S':
+        return 0
+    elif elevation_char == 'E':
+        return 25
+    else:
+        return ord(elevation_char) - ord('a')
+
 class Field:
     # Field class represents a single field on the map
     def __init__(self, x, y, elevation):

@@ -2,14 +2,6 @@
 import pytest
 from src.model import Map, Field
 
-def get_elevation_from_char(elevation_char):
-    if elevation_char == 'S':
-        return 0
-    elif elevation_char == 'E':
-        return 25
-    else:
-        return ord(elevation_char) - ord('a')
-
 def test_add_a_field_to_a_map():
     # GIVEN an empty map
     world = Map()

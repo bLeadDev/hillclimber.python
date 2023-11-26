@@ -1,6 +1,56 @@
 
 import pytest
-from src.model import Map, Field, Walker, get_elevation_from_char
+from src.model import Map, Field, Walker, Path, ShortestPathFinder, get_elevation_from_char
+#############################
+#
+# SOLVING TESTS
+# 
+#############################
+def test_solving_a_single_line_map():
+    # GIVEN a single line string, an empty path and a walker at pos 0, 0
+    map_string = """\
+ab"""
+    w = Walker(Field(0, 0, 0))
+    p = Path()
+    # WHEN creating a map from the string, setting the end and solve
+    world = Map.from_string(map_string)
+    world.set_end(1, 0)
+    
+    # THEN the path should find the path (0, 0), (0, 1)
+    spf = ShortestPathFinder()
+    spf.solve(world, p, w) 
+    spf.get_shortest()
+    shortest = spf.shortest_path
+    assert shortest.fields == [Field(0, 0, 0), Field(1, 0, 1)]
+
+
+def test_solving_a_multi_line_map():
+
+    # GIVEN a single line string, an empty path and a walker at pos 0, 0
+    map_string = """\
+abda
+abcd"""
+    w = Walker(Field(0, 0, 0))
+    p = Path()
+    # WHEN creating a map from the string, setting the end and solve
+    world = Map.from_string(map_string)
+    world.set_end(3, 0)
+    
+    # THEN the path length should be 5 
+    spf = ShortestPathFinder()
+    spf.solve(world, p, w) 
+    spf.get_shortest()
+    shortest = spf.shortest_path    
+    assert shortest.get_length() == 5
+
+
+
+
+#############################
+#
+# WALKER TESTS
+# 
+#############################
 
 def test_create_a_walker_who_is_able_to_climb_one_up():
     # GIVEN a walker at random position, elevation 0
@@ -22,6 +72,12 @@ def test_create_a_walker_who_is_not_able_to_climb_up_more_than_one():
     # WHEN trying to climb a field with elevation 2
     # THEN the climber should NOT be able to climb up
     assert(walker.can_climb(Field(x=1, y=0, elevation=2)) == False)
+
+#############################
+#
+# MAP AND FIELD TESTS
+# 
+#############################
 
 def test_add_a_field_to_a_map():
     # GIVEN an empty map

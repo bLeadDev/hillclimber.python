@@ -1,4 +1,4 @@
-from visu import plot_path
+#from visu import plot_path
 
 def get_elevation_from_char(elevation_char):
     if elevation_char == 'S':
@@ -161,69 +161,60 @@ class Path:
             if f == field:
                 return True
         return False
+    
 
 
 
 class ShortestPathFinder:
-    found_paths = []
+    def __init__(self):
+        self.shortest_path = None
+        self.found_paths = []
 
-    @staticmethod
-    def solve(map: Map, path: Path, walker: Walker):
-        if walker.position == map.end:
-            path.add_step(walker.position)
+    def get_shortest(self):
+        shortest = self.found_paths[0] 
+        for f in self.found_paths:
+            if f.get_length() < shortest.get_length():
+                shortest = f
+            print(f.fields)
+        self.shortest_path = shortest
+        
+
+    def solve(self, map: Map, path: Path, walker: Walker):
+        path.add_step(walker.position)
+
+        if map.end == walker.position:
             return path
         
-        neighbors = map.get_neighbours(walker.position)
-        # Initialize shortest path variable
         current_path = None
-        shortest_path = None
 
-        for neighbor in neighbors:
+        for neighbor in map.get_neighbours(walker.position):
             if neighbor is not None and not path.field_visited(neighbor) and walker.can_climb(neighbor):
                 walker.position = neighbor
-                path.add_step(neighbor)
-                current_path = ShortestPathFinder.solve(map, path, walker)
-                path.remove_last_step()
-
-            if current_path is not None:
-                if map.end == current_path.get_end():
-                    print(f"map end is: {map.end}\ncurrent end{current_path.get_end()}")
-                    print(f"current path: {current_path.fields}")
-                    ShortestPathFinder.found_paths.append(current_path)
-                    plot_path(current_path.fields, map.height, map.width)
-                    # if (shortest_path is None or current_path.get_length() < shortest_path.get_length()):
-                    #     shortest_path = current_path
-                    #     print("New shortest path: {}", shortest_path.get_length())
-                    #     print(f"h:{map.height}, w: {map.width}")
-                    #     plot_path(shortest_path.fields, map.height, map.width)
-        
-        return  shortest_path
-
+                current_path = self.solve(map=map, path=path, walker=walker)
+                if current_path is not None:
+                    self.found_paths.append(current_path)
 
 # Rest of your code remains unchanged
 
+if __name__ == '__main__':
+    map_string = """\
+abda
+abcd"""
+    w = Walker(Field(0, 0, 0))
+    p = Path()
+    # WHEN creating a map from the string, setting the end and solve
+    world = Map.from_string(map_string)
+    world.set_end(3, 0)
+    
+    # THEN the path should be one of the following two 
+    shortest = ShortestPathFinder.solve(world, p, w)
 
-map_string = """\
-Sabqponm
-abcryxxl
-accszExk
-acctuvwj
-abdefghi"""
-
-w = Walker(Field(x=0, y=0,elevation=0))
-m = Map.from_string(map_string=map_string)
-
-
-p = Path()
-p.add_step(w.position) #should be done in the class/method
-shortest = ShortestPathFinder.solve(m, p, w)
+    map_string = """\
+    Sabqponm
+    abcryxxl
+    accszExk
+    acctuvwj
+    abdefghi"""
 
 
 
-
-multilinestring = """\
-abc
-def
-ghi"""
-
-print(multilinestring)

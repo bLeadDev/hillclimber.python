@@ -156,8 +156,7 @@ class Path:
 
 
 class ShortestPathFinder:
-    pathes = []
-
+    
     @staticmethod
     def solve(map: Map, path: Path, walker: Walker):
         if walker.position == map.end:
@@ -175,16 +174,14 @@ class ShortestPathFinder:
                 current_path = ShortestPathFinder.solve(map, path, walker)
                 path.remove_last_step()
 
-            if current_path is not None:
-                        
-                ShortestPathFinder.pathes.append(current_path)    
-                
-                # if (shortest_path is None or current_path.get_length() < shortest_path.get_length()):
-                #     shortest_path = current_path
-                #     print("New shortest path: {}", shortest_path.get_length())
-                #     print(f"h:{map.height}, w: {map.width}")
-                #     #plot_path(shortest_path.fields, map.height, map.width)
-
+            if current_path is not None:        
+                if (shortest_path is None or current_path.get_length() < shortest_path.get_length()):
+                    shortest_path = current_path
+                    print("New shortest path: {}", shortest_path.get_length())
+                    print(f"h:{map.height}, w: {map.width}")
+                    plot_path(shortest_path.fields, map.height, map.width)
+        
+        return  shortest_path
 
 
 # Rest of your code remains unchanged
@@ -202,12 +199,8 @@ m = Map.from_string(map_string=map_string)
 
 
 p = Path()
-ShortestPathFinder.solve(m, p, w)
-for path in ShortestPathFinder.pathes:
-    print(f"{path.fields}")
-    if path is  not None:
-        if (m.end in path.fields) :
-            plot_path(path.fields, map.height, map.width)
+shortest = ShortestPathFinder.solve(m, p, w)
+print(shortest.get_length())
 
 
 multilinestring = """\

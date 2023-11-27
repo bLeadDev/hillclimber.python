@@ -1,10 +1,12 @@
 #from visu import plot_path
 
-def get_elevation_from_char(elevation_char):
+def get_elevation_from_char(elevation_char, coord):
     if elevation_char == 'S':
         return 0
     elif elevation_char == 'E':
         return 25
+    elif ord(elevation_char) > ord('z') or ord(elevation_char) < ord('a'):
+        raise Exception(f"Invalid cell detected at {coord}!")
     else:
         return ord(elevation_char) - ord('a')
 
@@ -102,16 +104,22 @@ class Map:
         end = None
         map_to_return = Map()
         lines = map_string.splitlines()
+        idx_x = -1
+        idx_y = -1
         for idx_y, line in enumerate(lines):
             for idx_x, ch in enumerate(line):
                 #search for start and end. As specified, start has elevation of a and end z
                 if ch == 'S':
+                    if start is not None:
+                        raise Exception("Multiple starting points detected!")
                     start = (idx_x, idx_y)
                     ch = 'a'
                 elif ch == 'E':
+                    if end is not None:
+                        raise Exception("Multiple ending points detected!")
                     end = (idx_x, idx_y)
                     ch = 'z'
-                map_to_return.add_field(x=idx_x, y=idx_y, elevation=get_elevation_from_char(ch))
+                map_to_return.add_field(x=idx_x, y=idx_y, elevation=get_elevation_from_char(ch, (idx_x, idx_y)))
         if end is not None:
             map_to_return.set_end(end[0], end[1])
         if start is not None:

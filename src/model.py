@@ -1,4 +1,5 @@
 #from visu import plot_path
+import sys
 
 def get_elevation_from_char(elevation_char, coord):
     if elevation_char == 'S':
@@ -52,49 +53,20 @@ class Map:
 
     def get_field(self, x, y):
         # Get the field at given x, y coordinates
+        if x >= self.width or x < 0 or y >= self.height or y < 0:
+            return Field(x, y, sys.maxsize)
         return self.fields[(x,y)]
 
     def get_neighbours(self, field):
         # Get a list of available neighbouring fields (N, S, W, E) of the given field
         # if they are not on the map, they are not available
 
-        if field.x > self.width - 1 or field.y > self.height - 1:
-            return None #outside of range
-        
-        neighbouring_fields = (None, None, None, None)
-
-        if field.y != 0:          #add north
-            neighbouring_fields = (
-                self.fields[(field.x, field.y - 1)],
-                neighbouring_fields[1],
-                neighbouring_fields[2],
-                neighbouring_fields[3]
-            )
-
-        if field.y != self.height - 1: #add south
-            neighbouring_fields = (
-                neighbouring_fields[0],
-                self.fields[(field.x, field.y + 1)],
-                neighbouring_fields[2],
-                neighbouring_fields[3]
-            )
-
-        if field.x != 0:          #add east
-            neighbouring_fields = (
-                neighbouring_fields[0],
-                neighbouring_fields[1],
-                self.fields[(field.x - 1, field.y)],
-                neighbouring_fields[3]
-            )
-        if field.x != self.width - 1:          #add west
-            neighbouring_fields = (
-                neighbouring_fields[0],
-                neighbouring_fields[1],
-                neighbouring_fields[2],
-                self.fields[(field.x + 1, field.y)],
-            )
- 
-        return neighbouring_fields
+        return (
+                self.get_field(field.x + 0, field.y - 1),
+                self.get_field(field.x + 0, field.y + 1),
+                self.get_field(field.x - 1, field.y + 0),
+                self.get_field(field.x + 1, field.y + 0)
+            );
         
 
     @staticmethod
@@ -120,12 +92,13 @@ class Map:
                     end = (idx_x, idx_y)
                     ch = 'z'
                 map_to_return.add_field(x=idx_x, y=idx_y, elevation=get_elevation_from_char(ch, (idx_x, idx_y)))
+        map_to_return.width = len(lines[0])
+        map_to_return.height = len(lines)  
         if end is not None:
             map_to_return.set_end(end[0], end[1])
         if start is not None:
             map_to_return.set_start(start[0], start[1])
-        map_to_return.width = idx_x + 1
-        map_to_return.height = idx_y + 1
+
         return map_to_return
 
 class Walker:
@@ -169,8 +142,7 @@ class Path:
             if f == field:
                 return True
         return False
-    
-
+ 
 
 
 class ShortestPathFinder:

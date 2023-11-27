@@ -174,7 +174,8 @@ class ShortestPathFinder:
         if walker.position == map.end:
             return path
                 
-        # additional stop needed
+        # additional stop condition needed, no climabable, unvisited neighbor available -> stop path
+        
         
         neighbors = map.get_neighbours(walker.position)
         (north, south, west, east) = neighbors

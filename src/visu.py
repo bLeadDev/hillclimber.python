@@ -32,7 +32,7 @@ def plot_path(path_data, y_size, x_size):
 
         # Assign color based on elevation
         color = plt.cm.RdYlGn(field.elevation / 25)  # Convert elevation to a color in the RdYlGn colormap
-
+        
 
         # Fill the corresponding field in the grid with the color
         grid[grid_y, grid_x] = color[:3]  # Keep only RGB channels

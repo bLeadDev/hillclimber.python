@@ -108,9 +108,12 @@ class Map:
 
 class Walker:
     # Walker class represents a walker with a position on the map
-    def __init__(self, position: Field):
-        # Initialize the walker's position
-        self.position = position
+    def __init__(self, position_information):
+        # Initialize the walker's position from field or get from the map
+        if isinstance(position_information, Map):
+            self.position = position_information.start
+        elif isinstance(position_information, Field): 
+            self.position = position_information
 
     def can_climb(self, field):
         if self.position.elevation + 1 == field.elevation:
@@ -123,11 +126,14 @@ class Walker:
 
 class Path:
     # Path class represents a sequence of fields forming a path on the map
-    def __init__(self):
+    def __init__(self, walker=None):
         # Initialize an empty list of fields
         self.fields = []
+        # If creation with walker, add start to fields
+        if isinstance(walker, Walker):
+            self.fields.append(walker.position)
 
-    def add_step(self, field):
+    def add_step(self, field: Field):
         # Add a new step to the path
         self.fields.append(field)
 
@@ -140,6 +146,8 @@ class Path:
         return len(self.fields)
     
     def get_end(self) -> Field:
+        if not self.fields:
+            return None
         return self.fields[len(self.fields) - 1]
     
     def field_visited(self, field) -> bool:
@@ -155,8 +163,23 @@ class ShortestPathFinder:
         self.shortest_path = None
         self.found_paths = []
 
+    found_paths = []
+
+    @staticmethod
     def solve(map: Map, path: Path, walker: Walker) -> Path:
+
+        if walker.position == map.end:
+            return path
         
+
+        for neigbor in map.get_neighbours(walker.position):
+            if walker.can_climb(neigbor) and not path.field_visited(neigbor):
+                walker.position = neigbor
+                path.add_step(walker.position)
+                found_path = ShortestPathFinder.solve(map, path, walker)
+                path.remove_last_step()
+            
+
         return path
 
 
@@ -165,6 +188,24 @@ class ShortestPathFinder:
 # Rest of your code remains unchanged
 
 if __name__ == '__main__':
+
+    if True:
+        # GIVEN a mutli line string, an empty path and a walker at pos 0, 0
+        map_string = """\
+ad
+bc"""
+        w = Walker(Field(0, 0, 0))
+        p = Path()
+        # WHEN creating a map from the string, setting the end and solve
+        world = Map.from_string(map_string)
+        world.set_end(1, 1)
+        
+        # THEN the path length should be 5 
+        shortest_path = ShortestPathFinder().solve(world, p, w)
+
+        
+
+
     map_string = """\
 abda
 abcd"""

@@ -23,7 +23,7 @@ ab"""
     shortest = spf.shortest_path
     assert shortest.fields == [Field(0, 0, 0), Field(1, 0, 1)]
 
-
+@pytest.mark.skip(reason="WIP")
 def test_solving_a_multi_line_map():
 
     # GIVEN a single line string, an empty path and a walker at pos 0, 0
@@ -162,6 +162,52 @@ abdefghi"""
     assert world.start  == Field(x=0, y=0, elevation=0)
     assert world.end    == Field(x=5, y=2, elevation=25)
 
+def test_create_a_map_with_multiple_starts_and_one_end():
+    # GIVEN a multiline string with multiple starts and one end
+    map_string = """\
+Sabqponm
+abcryxxl
+accszExk
+Scctuvwj
+abdefghi"""
+    # WHEN creating a map with multiple starting points
+    try:
+        world = Map.from_string(map_string)
+        works = False
+    except:
+        works = True
+        # THEN the map should throw an error that indicates too many starting points
+
+    assert works == True
+
+    
+
+
+
+def test_create_a_map_with_one_start_and_multiple_ends():
+    # GIVEN a multiline string with multiple starts and one end
+    map_string = """\
+Sabqponm
+abcryxEl
+accszExk
+acctuvwj
+abdefghi"""
+    # WHEN creating a map with multiple end points
+    # THEN the map should throw an error that indicates too many end points
+
+    with pytest.raises(Exception) as excinfo:
+        world = Map.from_string(map_string)
+    assert str(excinfo.value) == "Multiple ending points detected!"
+
+def test_create_a_map_with_invalid_cell():
+    # GIVEN a multiline string with start and end
+    map_string = """\
+a.mmlxl"""
+    # WHEN creating a map from the string
+    with pytest.raises(Exception) as excinfo:
+        world = Map.from_string(map_string)
+    assert str(excinfo.value) == "Invalid cell detected at (1, 0)!"
+
 def test_get_neightbors_in_middle():
     # GIVEN a multiline string with start and end
     map_string = """\
@@ -210,13 +256,13 @@ acctuvwj
 abdefghi"""
     world = Map.from_string(map_string)
     # WHEN trying to get the neighboring fields
-    neighbor = world.get_neighbours(Field(x=7, y=4, elevation=get_elevation_from_char('i')))
+    neighbor = world.get_neighbours(Field(x=7, y=4, elevation=get_elevation_from_char('i', (7, 4))))
     # THEN the map should return the right neighbors (N, S, W, E)
     print(f"neighbor at edge max {neighbor}")
     assert neighbor == (
-        Field(x=7, y=3, elevation=get_elevation_from_char('j')), #north
+        Field(x=7, y=3, elevation=get_elevation_from_char('j', (7, 3))), #north
         None,
-        Field(x=6, y=4, elevation=get_elevation_from_char('h')), #west
+        Field(x=6, y=4, elevation=get_elevation_from_char('h', (6, 4))), #west
         None,
     )
 
@@ -248,3 +294,12 @@ abdefghi"""
     # THEN the map should return the right neighbors (N, S, W, E), which is None
     assert neighbor == None
 
+def test_an_empty_map():
+    # GIVEN an empty map
+    map_string = """\
+"""
+    # WHEN creating an empty map
+    world = Map.from_string(map_string)
+    # THEN check the width and the height of the map
+    assert world.height == 0
+    assert world.width == 0

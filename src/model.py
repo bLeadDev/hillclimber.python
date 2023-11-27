@@ -1,5 +1,5 @@
 #from visu import plot_path
-import copy
+import sys
 
 def get_elevation_from_char(elevation_char, coord):
     if elevation_char == 'S':
@@ -51,51 +51,22 @@ class Map:
         # Add a new field to the map with given x, y coordinates and elevation
         self.fields[(x,y)] = Field(x, y, elevation)
 
-    def get_field(self, x, y) -> Field:
+    def get_field(self, x, y):
         # Get the field at given x, y coordinates
+        if x >= self.width or x < 0 or y >= self.height or y < 0:
+            return Field(x, y, sys.maxsize)
         return self.fields[(x,y)]
 
     def get_neighbours(self, field):
         # Get a list of available neighbouring fields (N, S, W, E) of the given field
         # if they are not on the map, they are not available
 
-        if field.x >= self.width or field.y >= self.height:
-            return None #outside of range
-        
-        neighbouring_fields = (None, None, None, None)
-
-        if field.y > 0:          #add north
-            neighbouring_fields = (
-                self.fields[(field.x, field.y - 1)],
-                neighbouring_fields[1],
-                neighbouring_fields[2],
-                neighbouring_fields[3]
+        return (
+                self.get_field(field.x + 0, field.y - 1),
+                self.get_field(field.x + 0, field.y + 1),
+                self.get_field(field.x - 1, field.y + 0),
+                self.get_field(field.x + 1, field.y + 0)
             )
-
-        if field.y < self.height - 1: #add south
-            neighbouring_fields = (
-                neighbouring_fields[0],
-                self.fields[(field.x, field.y + 1)],
-                neighbouring_fields[2],
-                neighbouring_fields[3]
-            )
-
-        if field.x > 0:          #add east
-            neighbouring_fields = (
-                neighbouring_fields[0],
-                neighbouring_fields[1],
-                self.fields[(field.x - 1, field.y)],
-                neighbouring_fields[3]
-            )
-        if field.x < self.width - 1:          #add west
-            neighbouring_fields = (
-                neighbouring_fields[0],
-                neighbouring_fields[1],
-                neighbouring_fields[2],
-                self.fields[(field.x + 1, field.y)],
-            )
- 
-        return neighbouring_fields
         
 
     @staticmethod
@@ -121,12 +92,18 @@ class Map:
                     end = (idx_x, idx_y)
                     ch = 'z'
                 map_to_return.add_field(x=idx_x, y=idx_y, elevation=get_elevation_from_char(ch, (idx_x, idx_y)))
+        print(f"{lines}")
+
+        try:
+            map_to_return.width = len(lines[0])
+        except IndexError: #not very beautiful, but if index zero is not there, its empty
+            map_to_return.width = 0
+        map_to_return.height = len(lines)  
         if end is not None:
             map_to_return.set_end(end[0], end[1])
         if start is not None:
             map_to_return.set_start(start[0], start[1])
-        map_to_return.width = idx_x + 1
-        map_to_return.height = idx_y + 1
+
         return map_to_return
 
 class Walker:
@@ -162,80 +139,28 @@ class Path:
     def get_length(self):
         return len(self.fields)
     
-    def get_end(self):
+    def get_end(self) -> Field:
         return self.fields[len(self.fields) - 1]
     
-    def field_visited(self, field):
+    def field_visited(self, field) -> bool:
         for f in self.fields:
             if f == field:
                 return True
         return False
-    
+ 
+
+
 class ShortestPathFinder:
     def __init__(self):
         self.shortest_path = None
         self.found_paths = []
 
-    def _solve(self, walker: Walker, path: Path, map: Map):
-        path.add_step(walker.position)
-
-        if walker.position == map.end:
-            return path
-                
-        # additional stop condition needed, no climabable, unvisited neighbor available -> stop path
+    def solve(map: Map, path: Path, walker: Walker) -> Path:
         
-        
-        neighbors = map.get_neighbours(walker.position)
-        (north, south, west, east) = neighbors
+        return path
 
-        p_north = copy.deepcopy(path)
-        p_south = copy.deepcopy(path)
-        p_east = copy.deepcopy(path)
-        p_west = copy.deepcopy(path)
 
-        #####xxxxxx
-        #####xxxxxx
-        #####xxxppp
-        #####xxxxxp
-
-        if north is not None and not path.field_visited(north) and walker.can_climb(north):
-            walker.position = north
-            p_north = self.solve(map, path, walker)
-
-        if  south is not None and not path.field_visited(south) and walker.can_climb(south):
-            walker.position = south
-            p_south = self.solve(map, path, walker)
     
-        if  west is not None and not path.field_visited(west) and walker.can_climb(west):
-            walker.position = west
-            p_west = self.solve(map, path, walker)
-
-        if  east is not None and not path.field_visited(south) and walker.can_climb(east):
-            walker.position = east
-            p_east = self.solve(map, path, walker)
-
-        n_len = p_north.get_length()
-        s_len = p_south.get_length()
-        w_len = p_west.get_length()
-        e_len = p_east.get_length()      
-
-
-    def solve(self, map: Map, path: Path, walker: Walker):
-        path.add_step(walker.position)
-
-        if map.end == walker.position:
-            return path
-        
-        current_path = copy.deepcopy(path)
-
-        for neighbor in map.get_neighbours(walker.position):
-            if neighbor is not None:
-                if current_path is not None: 
-                    if current_path.field_visited(neighbor) and walker.can_climb(neighbor):
-                        walker.position = neighbor
-                        current_path = self.solve(map=map, path=current_path, walker=walker)
-        print(current_path)
-
 
 # Rest of your code remains unchanged
 
@@ -249,11 +174,8 @@ abcd"""
     world = Map.from_string(map_string)
     world.set_end(3, 0)
     
-    # THEN the path length should be 5 
-    spf = ShortestPathFinder()
-    spf.solve(world, p, w) 
-
-  #  shortest = spf.shortest_path    
+    # THEN the path should be one of the following two 
+    shortest = ShortestPathFinder.solve(world, p, w)
 
     map_string = """\
     Sabqponm
@@ -261,6 +183,3 @@ abcd"""
     accszExk
     acctuvwj
     abdefghi"""
-
-
-

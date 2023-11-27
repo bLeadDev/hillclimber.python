@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-
+# Local field class, copy of model.py No idea how to import without circular importing this stuff
 class Field_loc:
     # Field class represents a single field on the map
     def __init__(self, x, y, elevation):

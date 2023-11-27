@@ -1,6 +1,8 @@
 
 import pytest
+import sys
 from src.model import Map, Field, Walker, Path, ShortestPathFinder, get_elevation_from_char
+
 #############################
 #
 # SOLVING TESTS
@@ -10,23 +12,157 @@ def test_solving_a_single_line_map():
     # GIVEN a single line string, an empty path and a walker at pos 0, 0
     map_string = """\
 ab"""
-    w = Walker(Field(0, 0, 0))
-    p = Path()
+    walker = Walker(Field(0, 0, 0))
+    path = Path()
     # WHEN creating a map from the string, setting the end and solve
     world = Map.from_string(map_string)
     world.set_end(1, 0)
     
-    # THEN the path should find the path (0, 0), (0, 1)
-    spf = ShortestPathFinder()
-    spf.solve(world, p, w) 
-    spf.get_shortest()
-    shortest = spf.shortest_path
+                    # THEN the path should find the path (0, 0), (0, 1)
+    shortest = ShortestPathFinder.solve(world, path, walker)
     assert shortest.fields == [Field(0, 0, 0), Field(1, 0, 1)]
 
-@pytest.mark.skip(reason="WIP")
-def test_solving_a_multi_line_map():
 
-    # GIVEN a single line string, an empty path and a walker at pos 0, 0
+@pytest.mark.skip(reason="WIP")
+def test_solving_a_small_multi_line_map():
+
+    # GIVEN a mutli line string, an empty path and a walker at pos 0, 0
+    map_string = """\
+ad
+bc"""
+    w = Walker(Field(0, 0, 0))
+    p = Path()
+    # WHEN creating a map from the string, setting the end and solve
+    world = Map.from_string(map_string)
+    world.set_end(1, 1)
+    
+    # THEN the path length should be 5 
+    shortest_path = ShortestPathFinder().solve(world, p, w)
+
+    assert shortest_path.fields == (Field(0, 0, 0), Field(0, 1, 1), Field(1, 1, 2))
+
+@pytest.mark.skip(reason="WIP")
+def test_solving_a_middle_multi_line_map_start_in_middle_go_down():
+
+    # GIVEN a mutli line string, an empty path and a walker at pos 1, 1
+    map_string = """\
+fbf
+bab
+fbf"""
+    w = Walker(Field(1, 1, 0))
+    p = Path()
+    # WHEN creating a map from the string, setting the end, setting a new start and solve 
+    world = Map.from_string(map_string)
+    world.set_start(1, 1)
+    world.set_end(1, 2)
+
+    # THEN the path should contain these 2 fields, start and down
+    shortest_path = ShortestPathFinder().solve(world, p, w)
+
+    assert shortest_path.fields == (Field(1, 1, 0), Field(1, 2, 1)) 
+
+@pytest.mark.skip(reason="WIP")
+def test_solving_a_middle_multi_line_map_start_in_middle_go_left():
+
+    # GIVEN a mutli line string, an empty path and a walker at pos 1, 1
+    map_string = """\
+fbf
+bab
+fbf"""
+    w = Walker(Field(1, 1, 0))
+    p = Path()
+    # WHEN creating a map from the string, setting the end, setting a new start and solve 
+    world = Map.from_string(map_string)
+    world.set_start(1, 1)
+    world.set_end(0, 1)
+
+    # THEN the path should contain these 2 fields, start and left
+    shortest_path = ShortestPathFinder().solve(world, p, w)
+
+    assert shortest_path.fields == (Field(1, 1, 0), Field(0, 1, 1)) 
+
+@pytest.mark.skip(reason="WIP")
+def test_solving_a_middle_multi_line_map_start_in_middle_unreachable():
+
+    # GIVEN a mutli line string, an empty path and a walker at pos
+    map_string = """\
+fbf
+bab
+fbf"""
+    w = Walker(Field(1, 1, 0))
+    p = Path()
+    # WHEN creating a map from the string, setting the end to an unreachable node, setting a new start and solve 
+    world = Map.from_string(map_string)
+    world.set_start(1, 1)
+    world.set_end(0, 0)
+
+    # THEN the path length should be 5 
+    with pytest.raises(Exception) as excinfo:
+        shortest_path = ShortestPathFinder().solve(world, p, w)
+    assert str(excinfo.value) == "Unsolvable map!"
+
+@pytest.mark.skip(reason="WIP")
+def test_solving_a_middle_multi_line_map_start_at_edge_round_corner():
+
+    # GIVEN a mutli line string, an empty path and a walker at pos 0, 1
+    map_string = """\
+fbf
+bab
+fbf"""
+    w = Walker(Field(0, 1, 1))
+    p = Path()
+    # WHEN creating a map from the string, setting the end, setting a new start and solve 
+    world = Map.from_string(map_string)
+    world.set_start(0, 1)
+    world.set_end(1, 0)
+
+    # THEN the path length should be 5 
+    shortest_path = ShortestPathFinder().solve(world, p, w)
+
+    assert shortest_path.fields == (Field(0, 1, 1), Field(1, 0, 1)) 
+
+@pytest.mark.skip(reason="WIP")
+def test_solving_a_multi_line_map_with_obstacle_and_downclimb():
+
+    # GIVEN a mutli line string with obstacle and downclimb, an empty path and a walker at pos 0, 0
+    map_string = """\
+abda
+abcd"""
+    w = Walker(Field(0, 0, 0))
+    p = Path()
+    # WHEN creating a map from the string, setting the end and solve
+    world = Map.from_string(map_string)
+    world.set_end(3, 0)
+    
+    # THEN the path length should be 5 and the field should be 3, 0
+    shortest = ShortestPathFinder.solve(world, p, w)
+
+    assert shortest.get_length() == 5
+    assert shortest.get_end() == Field(3, 0, 0)
+
+@pytest.mark.skip(reason="WIP")
+def test_solving_a_multi_line_map_with_obstacle_and_downclimb():
+
+    # GIVEN a mutli line string with obstacle, an empty path and a walker at pos 0, 0
+    map_string = """\
+abdc
+abcd"""
+    w = Walker(Field(0, 0, 0))
+    p = Path()
+    # WHEN creating a map from the string, setting the end and solve
+    world = Map.from_string(map_string)
+    world.set_end(3, 0)
+    
+    # THEN the path length should be 5 and field should be 3, 0
+    shortest = ShortestPathFinder.solve(world, p, w)
+
+    assert shortest.get_length() == 5
+    assert shortest.get_end() == Field(3, 0, 0)
+
+@pytest.mark.skip(reason="WIP")
+def test_solving_a_multi_line_map_with_obstacle():
+
+    # GIVEN a mutli line string with obstacle, an empty path and a walker at pos 0, 0
     map_string = """\
 abda
 abcd"""
@@ -37,12 +173,9 @@ abcd"""
     world.set_end(3, 0)
     
     # THEN the path length should be 5 
-    spf = ShortestPathFinder()
-    spf.solve(world, p, w) 
-    spf.get_shortest()
-    shortest = spf.shortest_path    
-    assert shortest.get_length() == 5
+    shortest = ShortestPathFinder.solve(world, p, w)
 
+    assert shortest.get_length() == 5
 
 
 
@@ -82,6 +215,8 @@ def test_create_a_walker_who_is_not_able_to_climb_up_more_than_one():
 def test_add_a_field_to_a_map():
     # GIVEN an empty map
     world = Map()
+    world.width = 1
+    world.height = 1
     # WHEN adding a new field (x=0, y=0, elevation 5)
     world.add_field(0, 0, 5)
 
@@ -91,6 +226,8 @@ def test_add_a_field_to_a_map():
 def test_adding_multiple_fields_to_a_map():
     # GIVEN an empty map
     world = Map()
+    world.width = 2
+    world.height = 2
     # WHEN adding a new field (x=0, y=0, elevation 5)
     world.add_field(0, 0, 5)
     # AND adding a new field (x=1, y=0, elevation 3)
@@ -171,17 +308,10 @@ accszExk
 Scctuvwj
 abdefghi"""
     # WHEN creating a map with multiple starting points
-    try:
-        world = Map.from_string(map_string)
-        works = False
-    except:
-        works = True
         # THEN the map should throw an error that indicates too many starting points
-
-    assert works == True
-
-    
-
+    with pytest.raises(Exception) as excinfo:
+        world = Map.from_string(map_string)
+    assert str(excinfo.value) == "Multiple starting points detected!"
 
 
 def test_create_a_map_with_one_start_and_multiple_ends():
@@ -240,9 +370,9 @@ abdefghi"""
     neighbor = world.get_neighbours(Field(x=0, y=0, elevation=0))
     # THEN the map should return the right neighbors (N, S, W, E)
     assert neighbor == (
-        None,
+        Field(x=0, y=-1, elevation=sys.maxsize), #north
         Field(x=0, y=1, elevation=0), #south
-        None,
+        Field(x=-1, y=0, elevation=sys.maxsize), #west
         Field(x=1, y=0, elevation=0), #east
         )
 
@@ -261,9 +391,9 @@ abdefghi"""
     print(f"neighbor at edge max {neighbor}")
     assert neighbor == (
         Field(x=7, y=3, elevation=get_elevation_from_char('j', (7, 3))), #north
-        None,
+        Field(x=7, y=5, elevation=sys.maxsize), #south
         Field(x=6, y=4, elevation=get_elevation_from_char('h', (6, 4))), #west
-        None,
+        Field(x=8, y=4, elevation=sys.maxsize), #east
     )
 
 def test_get_neightbors_field_out_of_range_x():
@@ -278,7 +408,12 @@ abdefghi"""
     # WHEN trying to get the neighboring fields of outside the map, x overrun
     neighbor = world.get_neighbours(Field(x=8, y=0, elevation=0))
     # THEN the map should return the right neighbors (N, S, W, E), which is None
-    assert neighbor == None
+    assert neighbor == (
+        Field(x=8, y=-1, elevation=sys.maxsize), #north
+        Field(x=8, y=1, elevation=sys.maxsize), #south
+        Field(x=7, y=0, elevation=get_elevation_from_char('m', (7,0))), #west
+        Field(x=9, y=0, elevation=sys.maxsize), #east
+        )
     
 def test_get_neightbors_field_out_of_range_y():
     # GIVEN a multiline string with start and end
@@ -292,7 +427,12 @@ abdefghi"""
     # WHEN trying to get the neighboring fields of outside the map, y overrun
     neighbor = world.get_neighbours(Field(x=0, y=5, elevation=0))
     # THEN the map should return the right neighbors (N, S, W, E), which is None
-    assert neighbor == None
+    assert neighbor == (
+        Field(x=0, y=4, elevation=get_elevation_from_char('a', (0, 4))), #north
+        Field(x=0, y=6, elevation=sys.maxsize), #south
+        Field(x=-1, y=5, elevation=sys.maxsize), #west
+        Field(x=1, y=5, elevation=sys.maxsize), #east
+        )
 
 def test_an_empty_map():
     # GIVEN an empty map
@@ -303,3 +443,49 @@ def test_an_empty_map():
     # THEN check the width and the height of the map
     assert world.height == 0
     assert world.width == 0
+
+def test_add_2_steps():
+    # GIVEN a Path with 2 steps
+    p = Path()
+    #WHEN I add two steps
+    p.add_step(Field(0, 0, 77))
+    p.add_step(Field(0, 1, 77))
+    #THEN I expect a length of two and the coords (0,0), (0,1)
+    assert p.fields[0] == (Field(0, 0, 77))
+    assert p.fields[1] == (Field(0, 1, 77)) 
+    assert p.get_length() == 2
+            
+
+def test_visited_fields_visited():
+    # GIVEN A Path with  steps
+    p = Path()
+    p.add_step(Field(0, 0, 77))
+    p.add_step(Field(1, 0, 77))
+    p.add_step(Field(1, 1, 77))
+    # WHEN i asked if there was a step on a visited field
+    already_visited = p.field_visited(Field(1, 0,77))
+    # THEN the test should be true
+    assert already_visited == True
+
+def test_visited_fields_unvisited():
+    # GIVEN A Path with some steps
+    p = Path()
+    p.add_step(Field(0, 0, 77))
+    p.add_step(Field(1, 0, 77))
+    p.add_step(Field(1, 1, 77))
+    # WHEN i asked if i steped on a field already
+    already_visited = p.field_visited(Field(0, 3, 77))
+    # THEN the test should be false, because there was no step on a visited field
+    assert already_visited == False
+    
+def test_remove_last_step():
+    # GIVEN an empty Path 
+    p = Path()
+    # WHEN adding three steps (length = 3)
+    p.add_step(Field(0, 0, 10))
+    p.add_step(Field(1, 0, 10))
+    p.add_step(Field(2, 0, 10))    
+    # THEN the last step should be deleted
+    expected_fields = [(Field(0, 0, 10)), (Field(1, 0, 10))]
+    p.remove_last_step()
+    assert p.fields == expected_fields

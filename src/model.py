@@ -1,5 +1,7 @@
 #from visu import plot_path
 import sys
+import copy
+
 
 def get_elevation_from_char(elevation_char, coord):
     if elevation_char == 'S':
@@ -121,6 +123,20 @@ class Walker:
         elif self.position.elevation >= field.elevation:
             return True
         return False
+    
+    def count_climbable_neighbors(self, neigbors):
+        #neigbors comes in tuple NSWE
+        (n, s, w, e) = neigbors
+        count = 0
+        if self.can_climb(n):
+            count += 1
+        if self.can_climb(s):
+            count += 1
+        if self.can_climb(w):
+            count += 1
+        if self.can_climb(e):
+            count += 1
+        return count
         
 
 
@@ -159,28 +175,34 @@ class Path:
 
 
 class ShortestPathFinder:
-    def __init__(self):
-        self.shortest_path = None
-        self.found_paths = []
-
-    found_paths = []
 
     @staticmethod
     def solve(map: Map, path: Path, walker: Walker) -> Path:
-
         if walker.position == map.end:
-            return path
+            print(f"Found path to end {path.fields}")
+            return copy.deepcopy(path)
         
+        shortest_path = None
 
         for neigbor in map.get_neighbours(walker.position):
             if walker.can_climb(neigbor) and not path.field_visited(neigbor):
+                temp_position = walker.position
+                
                 walker.position = neigbor
                 path.add_step(walker.position)
+                
                 found_path = ShortestPathFinder.solve(map, path, walker)
+                
                 path.remove_last_step()
-            
-
-        return path
+                walker.position = temp_position
+                
+                if shortest_path is None:
+                    shortest_path = found_path  
+                elif found_path and found_path.get_length() < shortest_path.get_length():
+                    shortest_path = found_path
+        if shortest_path is not None:
+            if shortest_path.get_end() == map.end:    
+                return shortest_path 
 
 
     
@@ -190,18 +212,22 @@ class ShortestPathFinder:
 if __name__ == '__main__':
 
     if True:
-        # GIVEN a mutli line string, an empty path and a walker at pos 0, 0
+    # GIVEN a mutli line string, an empty path and a walker at pos 0, 0
         map_string = """\
 ad
 bc"""
-        w = Walker(Field(0, 0, 0))
-        p = Path()
-        # WHEN creating a map from the string, setting the end and solve
+    # WHEN creating a map from the string creating the walker with the world and the path with the walker
         world = Map.from_string(map_string)
+        world.set_start(0, 0)
         world.set_end(1, 1)
+        walker = Walker(world)
+        path = Path(walker)
         
-        # THEN the path length should be 5 
-        shortest_path = ShortestPathFinder().solve(world, p, w)
+        # THEN the path length should be 3 and contain these fields
+        shortest_path = ShortestPathFinder().solve(world, path, walker)
+        assert shortest_path.get_length() == 3
+        assert shortest_path.fields == (Field(0, 0, 0), Field(0, 1, 1), Field(1, 1, 2))
+
 
         
 

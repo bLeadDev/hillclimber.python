@@ -8,14 +8,15 @@ from src.model import Map, Field, Walker, Path, ShortestPathFinder, get_elevatio
 # SOLVING TESTS
 # 
 #############################
-@pytest.mark.skip(reason="Work in progress")
+#@pytest.mark.skip(reason="Work in progress")
 def test_solving_a_single_line_map():
     # GIVEN a single line string
     map_string = """\
 ab"""
 
-    # WHEN creating a map from the string creating the walker with the wolrd and the path with the walker
+    # WHEN creating a map from the string creating the walker with the world and the path with the walker
     world = Map.from_string(map_string)
+    world.set_start(0, 0)
     world.set_end(1, 0)
     walker = Walker(world)
     path = Path(walker)
@@ -24,25 +25,27 @@ ab"""
     shortest = ShortestPathFinder.solve(world, path, walker)
     assert shortest.fields == [Field(0, 0, 0), Field(1, 0, 1)]
 
-@pytest.mark.skip(reason="Work in progress")
+#@pytest.mark.skip(reason="Work in progress")
 def test_solving_a_small_multi_line_map():
 
     # GIVEN a mutli line string, an empty path and a walker at pos 0, 0
     map_string = """\
 ad
 bc"""
-    w = Walker(Field(0, 0, 0))
-    p = Path()
-    # WHEN creating a map from the string, setting the end and solve
+    # WHEN creating a map from the string creating the walker with the world and the path with the walker
     world = Map.from_string(map_string)
+    world.set_start(0, 0)
     world.set_end(1, 1)
+    walker = Walker(world)
+    path = Path(walker)
     
-    # THEN the path length should be 5 
-    shortest_path = ShortestPathFinder().solve(world, p, w)
+    # THEN the path length should be 3 and contain these fields
+    shortest_path = ShortestPathFinder().solve(world, path, walker)
+    assert shortest_path.get_length() == 3
+    print(f"{shortest_path.fields}")
+    assert shortest_path.fields == [Field(0, 0, 0), Field(0, 1, 1), Field(1, 1, 2)]
 
-    assert shortest_path.fields == (Field(0, 0, 0), Field(0, 1, 1), Field(1, 1, 2))
-
-@pytest.mark.skip(reason="Work in progress")
+#pytest.mark.skip(reason="Work in progress")
 def test_solving_a_middle_multi_line_map_start_in_middle_go_down():
 
     # GIVEN a mutli line string, an empty path and a walker at pos 1, 1
@@ -50,19 +53,19 @@ def test_solving_a_middle_multi_line_map_start_in_middle_go_down():
 fbf
 bab
 fbf"""
-    w = Walker(Field(1, 1, 0))
-    p = Path()
-    # WHEN creating a map from the string, setting the end, setting a new start and solve 
+    # WHEN creating a map from the string creating the walker with the world and the path with the walker
     world = Map.from_string(map_string)
     world.set_start(1, 1)
     world.set_end(1, 2)
+    walker = Walker(world)
+    path = Path(walker)
 
     # THEN the path should contain these 2 fields, start and down
-    shortest_path = ShortestPathFinder().solve(world, p, w)
+    shortest_path = ShortestPathFinder().solve(world, path, walker)
 
-    assert shortest_path.fields == (Field(1, 1, 0), Field(1, 2, 1)) 
-
-@pytest.mark.skip(reason="Work in progress")
+    assert shortest_path.fields == [Field(1, 1, 0), Field(1, 2, 1)]
+                                                          
+#@pytest.mark.skip(reason="Work in progress")
 def test_solving_a_middle_multi_line_map_start_in_middle_go_left():
 
     # GIVEN a mutli line string, an empty path and a walker at pos 1, 1
@@ -70,17 +73,16 @@ def test_solving_a_middle_multi_line_map_start_in_middle_go_left():
 fbf
 bab
 fbf"""
-    w = Walker(Field(1, 1, 0))
-    p = Path()
-    # WHEN creating a map from the string, setting the end, setting a new start and solve 
     world = Map.from_string(map_string)
     world.set_start(1, 1)
     world.set_end(0, 1)
+    walker = Walker(world)
+    path = Path(walker)
 
     # THEN the path should contain these 2 fields, start and left
-    shortest_path = ShortestPathFinder().solve(world, p, w)
+    shortest_path = ShortestPathFinder().solve(world, path, walker)
 
-    assert shortest_path.fields == (Field(1, 1, 0), Field(0, 1, 1)) 
+    assert shortest_path.fields == [Field(1, 1, 0), Field(0, 1, 1)]
 
 @pytest.mark.skip(reason="Work in progress")
 def test_solving_a_middle_multi_line_map_start_in_middle_unreachable():
@@ -90,19 +92,19 @@ def test_solving_a_middle_multi_line_map_start_in_middle_unreachable():
 fbf
 bab
 fbf"""
-    w = Walker(Field(1, 1, 0))
-    p = Path()
-    # WHEN creating a map from the string, setting the end to an unreachable node, setting a new start and solve 
     world = Map.from_string(map_string)
     world.set_start(1, 1)
     world.set_end(0, 0)
+    walker = Walker(world)
+    path = Path(walker)
+
 
     # THEN the path length should be 5 
     with pytest.raises(Exception) as excinfo:
-        shortest_path = ShortestPathFinder().solve(world, p, w)
+        shortest_path = ShortestPathFinder().solve(world, path, walker)
     assert str(excinfo.value) == "Unsolvable map!"
 
-@pytest.mark.skip(reason="Work in progress")
+#@pytest.mark.skip(reason="Work in progress")
 def test_solving_a_middle_multi_line_map_start_at_edge_round_corner():
 
     # GIVEN a mutli line string, an empty path and a walker at pos 0, 1
@@ -110,76 +112,75 @@ def test_solving_a_middle_multi_line_map_start_at_edge_round_corner():
 fbf
 bab
 fbf"""
-    w = Walker(Field(0, 1, 1))
-    p = Path()
-    # WHEN creating a map from the string, setting the end, setting a new start and solve 
     world = Map.from_string(map_string)
     world.set_start(0, 1)
     world.set_end(1, 0)
+    walker = Walker(world)
+    path = Path(walker)
 
     # THEN the path length should be 5 
-    shortest_path = ShortestPathFinder().solve(world, p, w)
+    shortest_path = ShortestPathFinder().solve(world, path, walker)
 
-    assert shortest_path.fields == (Field(0, 1, 1), Field(1, 0, 1)) 
+    assert shortest_path.fields == [Field(0, 1, 1), Field(1, 1, 0), Field(1, 0, 1)]
 
-@pytest.mark.skip(reason="Work in progress")
+#@pytest.mark.skip(reason="Work in progress")
 def test_solving_a_multi_line_map_with_obstacle_and_downclimb():
 
     # GIVEN a mutli line string with obstacle and downclimb, an empty path and a walker at pos 0, 0
     map_string = """\
 abda
 abcd"""
-    w = Walker(Field(0, 0, 0))
-    p = Path()
-    # WHEN creating a map from the string, setting the end and solve
     world = Map.from_string(map_string)
+    world.set_start(0, 0)
     world.set_end(3, 0)
+    walker = Walker(world)
+    path = Path(walker)
     
     # THEN the path length should be 5 and the field should be 3, 0
-    shortest = ShortestPathFinder.solve(world, p, w)
+    shortest = ShortestPathFinder.solve(world, path, walker)
 
     assert shortest.get_length() == 5
     assert shortest.get_end() == Field(3, 0, 0)
 
-@pytest.mark.skip(reason="Work in progress")
+#@pytest.mark.skip(reason="Work in progress")
 def test_solving_a_multi_line_map_with_obstacle_and_downclimb():
 
     # GIVEN a mutli line string with obstacle, an empty path and a walker at pos 0, 0
     map_string = """\
 abda
 abcd"""
-    w = Walker(Field(0, 0, 0))
-    p = Path()
-    # WHEN creating a map from the string, setting the end and solve
     world = Map.from_string(map_string)
+    world.set_start(0, 0)
     world.set_end(3, 0)
+    walker = Walker(world)
+    path = Path(walker)
     
-    # THEN the path length should be 5 and field should be 3, 0
-    shortest = ShortestPathFinder.solve(world, p, w)
+    # THEN the path length should be 6 and field should be 3, 0
+    shortest = ShortestPathFinder.solve(world, path, walker)
 
-    assert shortest.get_length() == 5
+    assert shortest.get_length() == 6
     assert shortest.get_end() == Field(3, 0, 0)
 
-@pytest.mark.skip(reason="Work in progress")
+#@pytest.mark.skip(reason="Work in progress")
 def test_solving_a_multi_line_map_with_obstacle():
 
     # GIVEN a mutli line string with obstacle, an empty path and a walker at pos 0, 0
     map_string = """\
 abdc
 abcd"""
-    w = Walker(Field(0, 0, 0))
-    p = Path()
-    # WHEN creating a map from the string, setting the end and solve
     world = Map.from_string(map_string)
+    world.set_start(0, 0)
     world.set_end(3, 0)
+    walker = Walker(world)
+    path = Path(walker)
     
-    # THEN the path length should be 5 and ending 3, 0, 2
-    shortest = ShortestPathFinder.solve(world, p, w)
+    # THEN the path length should be 6 and ending 3, 0, 2
+    shortest = ShortestPathFinder.solve(world, path, walker)
 
-    assert shortest.get_length() == 5
+    assert shortest.get_length() == 6
     assert shortest.get_end() == Field(3, 0, 2)
 
-@pytest.mark.skip(reason="Work in progress")
+#@pytest.mark.skip(reason="Work in progress")
 def test_solving_small_full_test_map_():
 
     # GIVEN a mutli line string with a full map 
@@ -190,16 +191,15 @@ accszExk
 acctuvwj
 abdefghi"""
 
-    w = Walker(Field(0, 0, 0))
-    p = Path()
-    # WHEN creating a map from the string and just solving
     world = Map.from_string(map_string)
+    walker = Walker(world)
+    path = Path(walker)
 
     # THEN the path length should be 31 and the ending field 2, 5, 25
-    shortest = ShortestPathFinder.solve(world, p, w)
+    shortest = ShortestPathFinder.solve(world, path, walker)
 
-    assert shortest.get_length() == 31
-    assert shortest.get_end() == Field(2, 5, 25)
+    assert shortest.get_length() == 32 # Length of path is 32 because the starting field is also included in path
+    assert shortest.get_end() == Field(5, 2, 25)
 
 
 
@@ -230,23 +230,67 @@ def test_create_a_walker_who_is_not_able_to_climb_up_more_than_one():
     # THEN the climber should NOT be able to climb up
     assert(walker.can_climb(Field(x=1, y=0, elevation=2)) == False)
 
-def test_create_a_walker_from_map_and_world_checking_positions_and_path():
+def test_count_climable_neighbors_with_two():
     # GIVEN a multi line string with start and end 
     map_string = """\
-adfalndglc
-agasdEaxff
-asSasdfasf
-fsagsadfvb"""
+ab
+ba"""
 
-    # WHEN creating a map from the string creating the walker with the wolrd and the path with the walker
+    # WHEN creating a map from the string, and then creating the walker with the map, and setting start and end
     world = Map.from_string(map_string)
+    world.set_start(0, 0)
     walker = Walker(world)
-    path = Path(walker)
+
+    # THEN the walker should be able to climb 2
+    assert walker.count_climbable_neighbors(world.get_neighbours(walker.position)) == 2
+
+def test_count_climable_neighbors_with_3_middle():
+    # GIVEN a multi line string with start and end 
+    map_string = """\
+aaa
+ada
+aza"""
+
+    # WHEN creating a map from the string, and then creating the walker with the map, and setting start and end
+    world = Map.from_string(map_string)
+    world.set_start(1, 1)
+    walker = Walker(world)
+
+    # THEN the walker should be able to climb 2
+    assert walker.count_climbable_neighbors(world.get_neighbours(walker.position)) == 3
+
+
+def test_create_a_walker_set_start_end_checking_start():
+    # GIVEN a multi line string with start and end 
+    map_string = """\
+ab
+ca"""
+
+    # WHEN creating a map from the string, and then creating the walker with the map, and setting start and end
+    world = Map.from_string(map_string)
+    world.set_start(1, 1)
+    world.set_end(0, 0)
+    walker = Walker(world)
 
     # THEN the walker should start at the right position
-    assert walker.position == Field(2, 2, 0)
+    assert walker.position == Field(1, 1, 0)
 
-def test_create_a_walker_set_start_end_checking_positions_and_path():
+def test_create_a_walker_from_map_with_end_and_start_checking_position():
+    # GIVEN a multi line string with start and end 
+    map_string = """\
+abbd
+sfSb
+dasf
+asfE"""
+
+    # WHEN creating a map from the string, and then creating the walker with the map
+    world = Map.from_string(map_string)
+    walker = Walker(world)
+
+    # THEN the walker should start at the right position
+    assert walker.position == Field(2, 1, 0)
+
+def test_create_a_walker_set_start_end_checking_path():
     # GIVEN a multi line string with start and end 
     map_string = """\
 adfalndglc
@@ -257,14 +301,13 @@ agssadfvb"""
     # WHEN creating a map from the string and setting start and end,
     # creating the walker with the wolrd and the path with the walker
     world = Map.from_string(map_string)
-    world.set_start(4, 4)
+    world.set_start(1, 1)
     world.set_end(3, 3)
     walker = Walker(world)
     path = Path(walker)
 
-    # THEN the walker should start at the right position and the path should contain the right value
-    assert walker.position == Field(3, 3, get_elevation_from_char('s', (4, 4)))
-    assert path.fields[0] == (Field(3, 3, get_elevation_from_char('s', (4, 4)))) 
+    # THEN the path should start at the right position
+    assert path.fields[0] == (Field(1, 1, get_elevation_from_char('g', (1, 1)))) 
 
 
 #############################

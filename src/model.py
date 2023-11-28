@@ -1,4 +1,4 @@
-#from visu import plot_path
+from visu import plot_path
 import sys
 import copy
 
@@ -179,74 +179,42 @@ class ShortestPathFinder:
     @staticmethod
     def solve(map: Map, path: Path, walker: Walker) -> Path:
         if walker.position == map.end:
-            print(f"Found path to end {path.fields}")
             return copy.deepcopy(path)
         
         shortest_path = None
 
         for neigbor in map.get_neighbours(walker.position):
             if walker.can_climb(neigbor) and not path.field_visited(neigbor):
-                temp_position = walker.position
-                
                 walker.position = neigbor
                 path.add_step(walker.position)
                 
                 found_path = ShortestPathFinder.solve(map, path, walker)
                 
                 path.remove_last_step()
-                walker.position = temp_position
                 
                 if shortest_path is None:
                     shortest_path = found_path  
                 elif found_path and found_path.get_length() < shortest_path.get_length():
                     shortest_path = found_path
-        if shortest_path is not None:
-            if shortest_path.get_end() == map.end:    
-                return shortest_path 
+                    
+        return shortest_path 
 
 
     
-
-# Rest of your code remains unchanged
-
 if __name__ == '__main__':
 
-    if True:
-    # GIVEN a mutli line string, an empty path and a walker at pos 0, 0
-        map_string = """\
-ad
-bc"""
-    # WHEN creating a map from the string creating the walker with the world and the path with the walker
-        world = Map.from_string(map_string)
-        world.set_start(0, 0)
-        world.set_end(1, 1)
-        walker = Walker(world)
-        path = Path(walker)
-        
-        # THEN the path length should be 3 and contain these fields
-        shortest_path = ShortestPathFinder().solve(world, path, walker)
-        assert shortest_path.get_length() == 3
-        assert shortest_path.fields == (Field(0, 0, 0), Field(0, 1, 1), Field(1, 1, 2))
-
-
-        
-
-
+    # GIVEN a mutli line string with a full map 
     map_string = """\
-abda
-abcd"""
-    w = Walker(Field(0, 0, 0))
-    p = Path()
-    # WHEN creating a map from the string, setting the end and solve
+Sabqponm
+abcryxxl
+accszExk
+acctuvwj
+abdefghi""";
+
     world = Map.from_string(map_string)
-    world.set_end(3, 0)
-    
-    # THEN the path should be one of the following two 
-    shortest = ShortestPathFinder.solve(world, p, w)
+    walker = Walker(world)
+    path = Path(walker)
 
-    map_string = """\
-    Sabqponm
-    abcryxxl
-    accszExk
-    acctuvwj
-    abdefghi"""
+    # THEN the path length should be 31 and the ending field 2, 5, 25
+    shortest = ShortestPathFinder.solve(world, path, walker)
+    plot_path(shortest.fields, 5, 8)

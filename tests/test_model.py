@@ -104,6 +104,25 @@ fbf"""
         shortest_path = ShortestPathFinder().solve(world, path, walker)
     assert str(excinfo.value) == "Unsolvable map!"
 
+def test_solving_a_middle_multi_line_map_start_in_middle_unreachable():
+
+    # GIVEN a mutli line string, an empty path and a walker at pos
+    map_string = """\
+fbf
+bab
+fbf"""
+    world = Map.from_string(map_string)
+    world.set_start(1, 1)
+    world.set_end(0, 0)
+    walker = Walker(world)
+    path = Path(walker)
+
+
+    # THEN the path length should be 5 
+   
+    shortest_path = ShortestPathFinder().solve(world, path, walker)
+    assert shortest_path is None
+
 #@pytest.mark.skip(reason="Work in progress")
 def test_solving_a_middle_multi_line_map_start_at_edge_round_corner():
 

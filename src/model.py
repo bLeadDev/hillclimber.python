@@ -1,4 +1,3 @@
-from visu import plot_path
 import sys
 import copy
 
@@ -202,6 +201,7 @@ class ShortestPathFinder:
 
     
 if __name__ == '__main__':
+    from visu import plot_path
 
     # GIVEN a mutli line string with a full map 
     map_string = """\

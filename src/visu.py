@@ -47,7 +47,7 @@ def plot_path(path_data, y_size, x_size):
     # Adding labels and title
     plt.xlabel('X')
     plt.ylabel('Y')
-    plt.title('Colored Path on Grid')
+    plt.title(f'Colored Path on Grid, used {count} steps')
 
     # Show the plot
     plt.show()

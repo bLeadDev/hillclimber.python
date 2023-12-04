@@ -174,29 +174,29 @@ class Path:
 
 
 class ShortestPathFinder:
+    shortest_path = None
 
     @staticmethod
     def solve(map: Map, path: Path, walker: Walker) -> Path:
         if walker.position == map.end:
-            return copy.deepcopy(path)
+            print(f"{path.get_length()}")
+            if ShortestPathFinder.shortest_path is None:
+                ShortestPathFinder.shortest_path = copy.deepcopy(path)
+            elif path.get_length() < ShortestPathFinder.shortest_path.get_length():
+                ShortestPathFinder.shortest_path = copy.deepcopy(path)   
+            return   
         
-        shortest_path = None
-
         for neigbor in map.get_neighbours(walker.position):
             if walker.can_climb(neigbor) and not path.field_visited(neigbor):
                 walker.position = neigbor
                 path.add_step(walker.position)
                 
-                found_path = ShortestPathFinder.solve(map, path, walker)
+                ShortestPathFinder.solve(map, path, walker)
                 
                 path.remove_last_step()
-                
-                if shortest_path is None:
-                    shortest_path = found_path  
-                elif found_path and found_path.get_length() < shortest_path.get_length():
-                    shortest_path = found_path
+                walker.position = path.fields[-1]
                     
-        return shortest_path 
+        ShortestPathFinder.shortest_path 
 
 
     
@@ -216,5 +216,5 @@ abdefghi""";
     path = Path(walker)
 
     # THEN the path length should be 31 and the ending field 2, 5, 25
-    shortest = ShortestPathFinder.solve(world, path, walker)
-    plot_path(shortest.fields, 5, 8)
+    ShortestPathFinder.solve(world, path, walker)
+    plot_path(ShortestPathFinder.shortest_path.fields, 5, 8)
